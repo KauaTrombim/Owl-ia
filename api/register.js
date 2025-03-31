@@ -11,7 +11,7 @@ form_register.addEventListener('submit', (event) => {
     const email = document.getElementById('email').value
     const password= document.getElementById('password').value
     
-    const auth = getAuth(app);
+    const auth = getAuth(app)
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             const user = userCredential.user;
