@@ -1,30 +1,31 @@
-import { hash } from "crypto";
-import supabase from "./client";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
+import { app } from "./DBconfig.js"
 
-export default async function handler(request, response){
-    if (request.method === 'POST') {
-        const {username, email, password} = request.body
+const form_register = document.getElementById('form_register')
 
-        //empty data validation
-        if(!username || !email || !password){
-            return response.status(400).json({error: "Preencha todos os campos"})
-        }
+form_register.addEventListener('submit', (event) => {
+    event.preventDefault()
+    console.log("inside submit event")
 
-        const bcrypt = require('bcrypt')
-        const hashPassword = await bcrypt.hash(password, 10)
+    const username = document.getElementById('username').value
+    const email = document.getElementById('email').value
+    const password= document.getElementById('password').value
+    
+    const auth = getAuth(app);
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            updateProfile(user, {
+                displayName: username
+            })
+            console.log("user insert!")
+            window.location.href = "index.html"
+        })
+    .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorMessage)
+    });
 
-        const {data, error} = await supabase
-            .from("User")
-            .insert([{email, username, password: hashPassword}])
-
-        if(error){
-            return response.status(500).json({error: error.message})
-        }
-
-        return response.status(200).json({message: "Cadastro realizado com sucesso"})
-    }
-
-    else{
-        response.status(405).json({error: "Método inválido"})
-    }
-}
+    console.log("Insert!")
+});
